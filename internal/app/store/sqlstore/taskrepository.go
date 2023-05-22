@@ -20,6 +20,31 @@ func (r *TaskRepository) Create(t *model.Task) error {
 	).Scan(&t.ID)
 }
 
+func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
+	var array_t []model.Task
+	rows, err := r.store.db.Query(
+		"Select id, email, name_user, role, user_level from users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		t := &model.Task{}
+		if err := rows.Scan(
+			&t.ID,
+			&t.Email_curator,
+			&t.Email_employee,
+			&t.Description,
+			&t.Description,
+			&t.Status,
+		); err != nil {
+			return nil, err
+		}
+		array_t = append(array_t, *t)
+	}
+	return array_t, nil
+}
+
 func (r *TaskRepository) StatusUpdate(email string) error {
 	if _, err := r.store.db.Exec("UPDATE tasks set status = $1 FROM tasks WHERE email_empoyee = $2",
 		true, email,

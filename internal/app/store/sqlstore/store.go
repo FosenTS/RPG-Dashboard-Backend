@@ -8,9 +8,10 @@ import (
 )
 
 type Store struct {
-	db             *sql.DB
-	UserRepository *UserRepository
-	TaskRepository *TaskRepository
+	db              *sql.DB
+	UserRepository  *UserRepository
+	TaskRepository  *TaskRepository
+	SkillRepository *SkillRepository
 }
 
 func New(db *sql.DB) *Store {
@@ -41,4 +42,16 @@ func (s *Store) Task() store.TaskRepository {
 	}
 
 	return s.TaskRepository
+}
+
+func (s *Store) Skill() store.SkillRepository {
+	if s.SkillRepository != nil {
+		return s.SkillRepository
+	}
+
+	s.SkillRepository = &SkillRepository{
+		store: s,
+	}
+
+	return s.SkillRepository
 }

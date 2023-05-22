@@ -46,6 +46,9 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/task", s.handlerTaskCreate()).Methods("POST")
 	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
 	s.router.HandleFunc("/users", s.handleGetAllUsers()).Methods("POST")
+	s.router.HandleFunc("/skills/add", s.handleAddSkill()).Methods("POST")
+	s.router.HandleFunc("/skills/get", s.handleGetSkill()).Methods("POST")
+	s.router.HandleFunc("/skills/get/email_gs", s.handleGetSkillEmail_Gs()).Methods("POST")
 }
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
@@ -152,6 +155,30 @@ func (s *server) handlerTaskCreate() http.HandlerFunc {
 	}
 }
 
+func (s *server) handleTaskGetuser() http.HandlerFunc {
+
+	type request struct {
+		email string `json:"email"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		array_t, err := s.store.Task().GetUserTask(req.email)
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, array_t)
+	}
+
+}
+
 func (s *server) handleGetUser() http.HandlerFunc {
 
 	type request struct {
@@ -227,6 +254,116 @@ func (s *server) handleTaskComplete() http.HandlerFunc {
 			return
 		}
 		s.respond(w, r, http.StatusAccepted, "Updated")
+	}
+}
+func (s *server) handleAddSkill() http.HandlerFunc {
+
+	type request struct {
+		Group_skills string `json:"Group_skills"`
+		Description  string `json:"Description"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		err := json.NewDecoder(r.Body).Decode(req)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		ms := &model.Skill{
+			Group_skills: req.Group_skills,
+			Description:  req.Description,
+		}
+
+		if req.Group_skills == "" || req.Description == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if err := s.store.Skill().Create(ms); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, ms)
+
+	}
+}
+
+func (s *server) handleGetSkill() http.HandlerFunc {
+
+	type request struct {
+		User_email string `json:"User_email"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if req.User_email != "" {
+			list_s, err := s.store.Skill().FindByEmail(req.User_email)
+			if err != nil {
+				s.error(w, r, http.StatusUnprocessableEntity, err)
+				return
+			}
+			s.respond(w, r, http.StatusAccepted, list_s)
+			return
+		}
+
+		list_s, err := s.store.Skill().GetAllSkills()
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusAccepted, list_s)
+	}
+}
+
+func (s *server) handleGetSkillEmail_Gs() http.HandlerFunc {
+
+	type request struct {
+		User_email   string `json:"User_email"`
+		Group_skills string `json:"Group_skills"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if req.User_email != "" && req.Group_skills != "" {
+			list_s, err := s.store.Skill().FindByEmail_Gs(req.User_email, req.Group_skills)
+			if err != nil {
+				s.error(w, r, http.StatusUnprocessableEntity, err)
+				return
+			}
+			s.respond(w, r, http.StatusAccepted, list_s)
+			return
+		}
+
+		list_s, err := s.store.Skill().GetAllSkills()
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		type skill_ext struct {
+			Group_skills string
+			array        []model.Skill
+			num          int
+		}
+
+		var sk skill_ext = skill_ext{req.User_email, list_s, len(list_s)}
+
+		s.respond(w, r, http.StatusAccepted, sk)
 	}
 }
 

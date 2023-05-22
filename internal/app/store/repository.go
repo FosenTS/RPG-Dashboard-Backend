@@ -9,10 +9,18 @@ type UserRepository interface {
 	FindByMail(string) (*model.User, error)
 	FindById(int) (*model.User, error)
 	GetAllUser() ([]model.User, error)
-	GetAllUser_filter(role_line string) ([]model.User, error)
+	GetAllUser_filter(string) ([]model.User, error)
 }
 
 type TaskRepository interface {
 	Create(*model.Task) error
 	StatusUpdate(string) error
+	GetUserTask(string) ([]model.Task, error)
+}
+
+type SkillRepository interface {
+	Create(*model.Skill) error
+	GetAllSkills() ([]model.Skill, error)
+	FindByEmail(string) ([]model.Skill, error)
+	FindByEmail_Gs(string, string) ([]model.Skill, error)
 }
