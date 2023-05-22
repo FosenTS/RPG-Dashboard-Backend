@@ -6,5 +6,5 @@ type Task struct {
 	Email_curator  string `json:"email_curator"`
 	Email_employee string `json:"email_employee"`
 	Description    string `json:"description"`
-	Status         string `json:"false"`
+	Status         string `json:"status"`
 }

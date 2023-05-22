@@ -9,6 +9,7 @@ CREATE TABLE users (
 
 Create TABLE tasks (
     id bigserial not null primary key,
+    name_curator varchar not null,
     email_curator varchar not null,
     email_employee varchar not null,
     description varchar not null,
@@ -20,5 +21,5 @@ Create table skill (
     id bigserial not null primary key,
     email varchar not null,
     group_skills varchar not null,
-    description varchar not null,
-)
+    description varchar not null
+);

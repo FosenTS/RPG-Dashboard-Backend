@@ -124,3 +124,31 @@ func (r *UserRepository) GetAllUser_filter(role_line string) ([]model.User, erro
 	}
 	return array_u, nil
 }
+
+func (r *UserRepository) LevelUpdate(email string, id int) error {
+	var user_level int
+	if err := r.store.db.QueryRow("SELECT user_level FROM users WHERE email = $1",
+		email,
+	).Scan(
+		user_level,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return store.ErrRecordNotFound
+		}
+		return err
+	}
+	reward, err := r.store.TaskRepository.SearchReward(id)
+	if err != nil {
+		return err
+	}
+
+	if _, err := r.store.db.Exec("UPDATE users set user_level = $1 WHERE email = $2",
+		reward+user_level, email,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return store.ErrRecordNotFound
+		}
+		return err
+	}
+	return nil
+}

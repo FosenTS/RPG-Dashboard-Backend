@@ -24,7 +24,7 @@ func (r *TaskRepository) Create(t *model.Task) error {
 func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 	var array_t []model.Task
 	rows, err := r.store.db.Query(
-		"Select id, name_curator, email, name_user, role, user_level from tasks where email_employee = $1",
+		"Select id, name_curator, email_curator, email_employee, description, status from tasks where email_employee = $1",
 		email,
 	)
 	if err != nil {
@@ -39,7 +39,6 @@ func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 			&t.Email_curator,
 			&t.Email_employee,
 			&t.Description,
-			&t.Description,
 			&t.Status,
 		); err != nil {
 			return nil, err
@@ -47,6 +46,22 @@ func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 		array_t = append(array_t, *t)
 	}
 	return array_t, nil
+}
+
+func (r *TaskRepository) SearchReward(id int) (int, error) {
+	var reward int
+	if err := r.store.db.QueryRow(
+		"SELECT reward FROM tasks WHERE id = $1",
+		id,
+	).Scan(
+		reward,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, store.ErrRecordNotFound
+		}
+		return 0, err
+	}
+	return reward, nil
 }
 
 func (r *TaskRepository) StatusUpdate(email string) error {
