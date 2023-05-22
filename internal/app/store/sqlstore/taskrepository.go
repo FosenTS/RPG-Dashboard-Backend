@@ -13,7 +13,8 @@ type TaskRepository struct {
 func (r *TaskRepository) Create(t *model.Task) error {
 	t.Status = "false"
 	return r.store.db.QueryRow(
-		"INSERT INTO tasks(email_curator, email_employee, description) values($1, $2, $3) returning id",
+		"INSERT INTO tasks(name_curator, email_curator, email_employee, description) values($1, $2, $3, $4) returning id",
+		t.Name_curator,
 		t.Email_curator,
 		t.Email_employee,
 		t.Description,
@@ -23,7 +24,9 @@ func (r *TaskRepository) Create(t *model.Task) error {
 func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 	var array_t []model.Task
 	rows, err := r.store.db.Query(
-		"Select id, email, name_user, role, user_level from users")
+		"Select id, name_curator, email, name_user, role, user_level from tasks where email_employee = $1",
+		email,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +35,7 @@ func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 		t := &model.Task{}
 		if err := rows.Scan(
 			&t.ID,
+			&t.Name_curator,
 			&t.Email_curator,
 			&t.Email_employee,
 			&t.Description,

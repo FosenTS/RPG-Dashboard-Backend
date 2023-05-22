@@ -43,7 +43,8 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) configureRouter() {
 	s.router.HandleFunc("/users/create", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
-	s.router.HandleFunc("/task", s.handlerTaskCreate()).Methods("POST")
+	s.router.HandleFunc("/tasks/create", s.handlerTaskCreate()).Methods("POST")
+	s.router.HandleFunc("/tasks", s.handleTaskGetUser()).Methods("POST")
 	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
 	s.router.HandleFunc("/users", s.handleGetAllUsers()).Methods("POST")
 	s.router.HandleFunc("/skills/add", s.handleAddSkill()).Methods("POST")
@@ -121,6 +122,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 func (s *server) handlerTaskCreate() http.HandlerFunc {
 
 	type request struct {
+		Name_curator   string `json:"name_curator"`
 		Email_curator  string `json:"email_curator"`
 		Email_employee string `json:"email_employee"`
 		Description    string `json:"description"`
@@ -140,6 +142,7 @@ func (s *server) handlerTaskCreate() http.HandlerFunc {
 		}
 
 		t := &model.Task{
+			Name_curator:   req.Name_curator,
 			Email_curator:  req.Email_curator,
 			Email_employee: req.Email_employee,
 			Description:    req.Description,
@@ -155,10 +158,11 @@ func (s *server) handlerTaskCreate() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleTaskGetuser() http.HandlerFunc {
+func (s *server) handleTaskGetUser() http.HandlerFunc {
 
 	type request struct {
-		email string `json:"email"`
+		Name_curator string `json:"name_curator"`
+		Email        string `json:"email"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -168,7 +172,7 @@ func (s *server) handleTaskGetuser() http.HandlerFunc {
 			return
 		}
 
-		array_t, err := s.store.Task().GetUserTask(req.email)
+		array_t, err := s.store.Task().GetUserTask(req.Email)
 		if err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)
 			return
