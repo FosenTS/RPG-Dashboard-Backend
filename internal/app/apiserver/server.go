@@ -253,9 +253,16 @@ func (s *server) handleTaskComplete() http.HandlerFunc {
 			return
 		}
 
-		err := s.store.Task().StatusUpdate(req.Email)
-		if err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+		err1 := s.store.Task().StatusUpdate(req.Email)
+		if err1 != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err1)
+			return
+		}
+		s.respond(w, r, http.StatusAccepted, "Updated")
+
+		err2 := s.store.User().LevelUpdate(req.Email, req.Id)
+		if err2 != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err2)
 			return
 		}
 		s.respond(w, r, http.StatusAccepted, "Updated")
