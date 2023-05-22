@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"database/sql"
+	"fmt"
 	"home/fosen/Document/golang/RestAPI/internal/app/store"
 	"home/fosen/Document/golang/RestAPI/internal/model"
 )
@@ -48,29 +49,31 @@ func (r *TaskRepository) GetUserTask(email string) ([]model.Task, error) {
 	return array_t, nil
 }
 
-func (r *TaskRepository) SearchReward(id int) (int, error) {
-	var reward int
+func (r *TaskRepository) SearchReward(id int) (*int, error) {
+	t := &model.Task{}
 	if err := r.store.db.QueryRow(
 		"SELECT reward FROM tasks WHERE id = $1",
 		id,
 	).Scan(
-		reward,
+		&t.Reward,
 	); err != nil {
 		if err == sql.ErrNoRows {
-			return 0, store.ErrRecordNotFound
+			return nil, store.ErrRecordNotFound
 		}
-		return 0, err
+		return nil, err
 	}
-	return reward, nil
+	return &t.Reward, nil
 }
 
 func (r *TaskRepository) StatusUpdate(email string) error {
-	if _, err := r.store.db.Exec("UPDATE tasks set status = $1 FROM tasks WHERE email_empoyee = $2",
+
+	if _, err := r.store.db.Exec("UPDATE tasks set status = $1 WHERE email_employee = $2",
 		true, email,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return store.ErrRecordNotFound
 		}
+		fmt.Println(err)
 		return err
 	}
 	return nil

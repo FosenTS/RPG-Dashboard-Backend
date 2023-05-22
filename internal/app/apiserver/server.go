@@ -3,6 +3,7 @@ package apiserver
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"home/fosen/Document/golang/RestAPI/internal/app/store"
 	"home/fosen/Document/golang/RestAPI/internal/model"
 	"net/http"
@@ -255,13 +256,14 @@ func (s *server) handleTaskComplete() http.HandlerFunc {
 
 		err1 := s.store.Task().StatusUpdate(req.Email)
 		if err1 != nil {
+			fmt.Println(err1)
 			s.error(w, r, http.StatusUnprocessableEntity, err1)
 			return
 		}
-		s.respond(w, r, http.StatusAccepted, "Updated")
 
 		err2 := s.store.User().LevelUpdate(req.Email, req.Id)
 		if err2 != nil {
+			fmt.Println(err2)
 			s.error(w, r, http.StatusUnprocessableEntity, err2)
 			return
 		}

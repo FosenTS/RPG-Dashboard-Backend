@@ -7,4 +7,5 @@ type Task struct {
 	Email_employee string `json:"email_employee"`
 	Description    string `json:"description"`
 	Status         string `json:"status"`
+	Reward         int    `json:"reward"`
 }
