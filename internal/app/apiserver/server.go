@@ -45,6 +45,7 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/tasks/create", s.handlerTaskCreate()).Methods("POST")
 	s.router.HandleFunc("/tasks", s.handleTaskGetUser()).Methods("POST")
+	s.router.HandleFunc("/tasks/complete", s.handleTaskComplete()).Methods("POST")
 	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
 	s.router.HandleFunc("/users", s.handleGetAllUsers()).Methods("POST")
 	s.router.HandleFunc("/skills/add", s.handleAddSkill()).Methods("POST")
