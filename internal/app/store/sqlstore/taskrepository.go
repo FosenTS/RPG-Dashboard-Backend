@@ -65,10 +65,10 @@ func (r *TaskRepository) SearchReward(id int) (*int, error) {
 	return &t.Reward, nil
 }
 
-func (r *TaskRepository) StatusUpdate(email string) error {
+func (r *TaskRepository) StatusUpdate(id int) error {
 
-	if _, err := r.store.db.Exec("UPDATE tasks set status = $1 WHERE email_employee = $2",
-		true, email,
+	if _, err := r.store.db.Exec("UPDATE tasks set status = $1 WHERE id = $2",
+		true, id,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			return store.ErrRecordNotFound

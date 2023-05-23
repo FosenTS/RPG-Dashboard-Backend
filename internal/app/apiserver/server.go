@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	sessionName = "RestAPI_Auth"
+	sessionName = "RestAPI_backend"
 )
 
 var (
@@ -42,16 +42,16 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) configureRouter() {
-	s.router.HandleFunc("/users/create", s.handleUsersCreate()).Methods("POST")
-	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
-	s.router.HandleFunc("/tasks/create", s.handlerTaskCreate()).Methods("POST")
-	s.router.HandleFunc("/tasks", s.handleTaskGetUser()).Methods("POST")
-	s.router.HandleFunc("/tasks/complete", s.handleTaskComplete()).Methods("POST")
-	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
 	s.router.HandleFunc("/users", s.handleGetAllUsers()).Methods("POST")
+	s.router.HandleFunc("/users/create", s.handleUsersCreate()).Methods("POST")
+	s.router.HandleFunc("/users/get", s.handleGetUser()).Methods("POST")
+	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
+	s.router.HandleFunc("/tasks", s.handleTaskGetUser()).Methods("POST")
+	s.router.HandleFunc("/tasks/create", s.handlerTaskCreate()).Methods("POST")
+	s.router.HandleFunc("/tasks/complete", s.handleTaskComplete()).Methods("POST")
 	s.router.HandleFunc("/skills/add", s.handleAddSkill()).Methods("POST")
 	s.router.HandleFunc("/skills/get", s.handleGetSkill()).Methods("POST")
-	s.router.HandleFunc("/skills/get/email_gs", s.handleGetSkillEmail_Gs()).Methods("POST")
+	s.router.HandleFunc("/skills/get/user_skills_group", s.handleGetSkillEmail_Gs()).Methods("POST")
 }
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
@@ -254,7 +254,7 @@ func (s *server) handleTaskComplete() http.HandlerFunc {
 			return
 		}
 
-		err1 := s.store.Task().StatusUpdate(req.Email)
+		err1 := s.store.Task().StatusUpdate(req.Id)
 		if err1 != nil {
 			fmt.Println(err1)
 			s.error(w, r, http.StatusUnprocessableEntity, err1)

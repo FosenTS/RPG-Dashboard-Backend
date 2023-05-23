@@ -15,7 +15,7 @@ type UserRepository interface {
 
 type TaskRepository interface {
 	Create(*model.Task) error
-	StatusUpdate(string) error
+	StatusUpdate(int) error
 	GetUserTask(string) ([]model.Task, error)
 	SearchReward(int) (*int, error)
 }
