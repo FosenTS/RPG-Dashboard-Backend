@@ -1,6 +1,7 @@
 package sqlstore
 
 import (
+	"fmt"
 	"home/fosen/Document/golang/RestAPI/internal/model"
 )
 
@@ -10,17 +11,17 @@ type SkillRepository struct {
 
 func (r *SkillRepository) Create(ms *model.Skill) error {
 	return r.store.db.QueryRow(
-		"INSERT INTO skills (user_email, group_skills, description) values($1, $2, $3) returning user_email",
-		ms.User_email,
+		"INSERT INTO skills(email, group_skills, description) values($1, $2, $3) returning id",
+		ms.Email,
 		ms.Group_skills,
 		ms.Description,
-	).Scan(&ms.User_email, &ms.Group_skills, &ms.Description)
+	).Scan(&ms.ID)
 }
 
 func (r *SkillRepository) GetAllSkills() ([]model.Skill, error) {
 	var array_s []model.Skill
 	rows, err := r.store.db.Query(
-		"SELECT user_email, group_skills, description FROM skills")
+		"SELECT email, group_skills, description FROM skills")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +29,7 @@ func (r *SkillRepository) GetAllSkills() ([]model.Skill, error) {
 	for rows.Next() {
 		s := &model.Skill{}
 		if err := rows.Scan(
-			&s.User_email,
+			&s.Email,
 			&s.Group_skills,
 			&s.Description,
 		); err != nil {
@@ -42,7 +43,7 @@ func (r *SkillRepository) GetAllSkills() ([]model.Skill, error) {
 func (r *SkillRepository) FindByEmail(user_email string) ([]model.Skill, error) {
 	var array_s []model.Skill
 	rows, err := r.store.db.Query(
-		"SELECT user_email, group_skills, description FROM skills WHERE user_email = $1",
+		"SELECT email, group_skills, description FROM skills WHERE user_email = $1",
 		user_email)
 
 	if err != nil {
@@ -53,7 +54,7 @@ func (r *SkillRepository) FindByEmail(user_email string) ([]model.Skill, error) 
 	for rows.Next() {
 		s := &model.Skill{}
 		if err := rows.Scan(
-			&s.User_email,
+			&s.Email,
 			&s.Group_skills,
 			&s.Description,
 		); err != nil {
@@ -64,27 +65,28 @@ func (r *SkillRepository) FindByEmail(user_email string) ([]model.Skill, error) 
 	return array_s, nil
 }
 
-func (r *SkillRepository) FindByEmail_Gs(user_email string, group_skills string) ([]model.Skill, error) {
+func (r *SkillRepository) FindByEmail_gs(user_email string, group string) ([]model.Skill, error) {
 	var array_s []model.Skill
+	fmt.Println(user_email, group)
 	rows, err := r.store.db.Query(
-		"SELECT user_email, group_skills, description FROM skills WHERE user_email = $1 AND WHERE group_skills = $2",
-		user_email, group_skills)
-
+		"SELECT id, email, group_skills, description FROM skills WHERE email = $1 AND group_skills = $2",
+		user_email, group)
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(rows)
 	defer rows.Close()
 	for rows.Next() {
-		s := &model.Skill{}
+		u := &model.Skill{}
 		if err := rows.Scan(
-			&s.User_email,
-			&s.Group_skills,
-			&s.Description,
+			&u.ID,
+			&u.Email,
+			&u.Group_skills,
+			&u.Description,
 		); err != nil {
 			return nil, err
 		}
-		array_s = append(array_s, *s)
+		array_s = append(array_s, *u)
 	}
 	return array_s, nil
 }

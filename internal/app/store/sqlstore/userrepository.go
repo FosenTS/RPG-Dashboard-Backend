@@ -79,7 +79,7 @@ func (r *UserRepository) FindById(id int) (*model.User, error) {
 func (r *UserRepository) GetAllUser() ([]model.User, error) {
 	var array_u []model.User
 	rows, err := r.store.db.Query(
-		"Select id, email, name_user, role, user_level from users")
+		"Select id, email, name_user, role, user_level from users order by user_level desc")
 	if err != nil {
 		return nil, err
 	}

@@ -273,8 +273,9 @@ func (s *server) handleTaskComplete() http.HandlerFunc {
 func (s *server) handleAddSkill() http.HandlerFunc {
 
 	type request struct {
-		Group_skills string `json:"Group_skills"`
-		Description  string `json:"Description"`
+		Email        string `json:"email"`
+		Group_skills string `json:"group_skills"`
+		Description  string `json:"description"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -286,6 +287,7 @@ func (s *server) handleAddSkill() http.HandlerFunc {
 			return
 		}
 		ms := &model.Skill{
+			Email:        req.Email,
 			Group_skills: req.Group_skills,
 			Description:  req.Description,
 		}
@@ -342,8 +344,8 @@ func (s *server) handleGetSkill() http.HandlerFunc {
 func (s *server) handleGetSkillEmail_Gs() http.HandlerFunc {
 
 	type request struct {
-		User_email   string `json:"User_email"`
-		Group_skills string `json:"Group_skills"`
+		User_email   string `json:"user_email"`
+		Group_skills string `json:"group_skills"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -353,17 +355,7 @@ func (s *server) handleGetSkillEmail_Gs() http.HandlerFunc {
 			return
 		}
 
-		if req.User_email != "" && req.Group_skills != "" {
-			list_s, err := s.store.Skill().FindByEmail_Gs(req.User_email, req.Group_skills)
-			if err != nil {
-				s.error(w, r, http.StatusUnprocessableEntity, err)
-				return
-			}
-			s.respond(w, r, http.StatusAccepted, list_s)
-			return
-		}
-
-		list_s, err := s.store.Skill().GetAllSkills()
+		list_s, err := s.store.Skill().FindByEmail_gs(req.User_email, req.Group_skills)
 		if err != nil {
 			s.error(w, r, http.StatusUnprocessableEntity, err)
 			return
@@ -371,12 +363,16 @@ func (s *server) handleGetSkillEmail_Gs() http.HandlerFunc {
 
 		type skill_ext struct {
 			Group_skills string
-			array        []model.Skill
-			num          int
+			Array        []model.Skill
+			Num          int
 		}
 
-		var sk skill_ext = skill_ext{req.User_email, list_s, len(list_s)}
+		sk := skill_ext{
+			Group_skills: req.User_email,
+			Array:        list_s,
+			Num:          len(list_s)}
 
+		fmt.Println(sk)
 		s.respond(w, r, http.StatusAccepted, sk)
 	}
 }

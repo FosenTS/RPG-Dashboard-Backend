@@ -24,5 +24,5 @@ type SkillRepository interface {
 	Create(*model.Skill) error
 	GetAllSkills() ([]model.Skill, error)
 	FindByEmail(string) ([]model.Skill, error)
-	FindByEmail_Gs(string, string) ([]model.Skill, error)
+	FindByEmail_gs(string, string) ([]model.Skill, error)
 }

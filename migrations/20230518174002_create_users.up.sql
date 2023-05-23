@@ -17,7 +17,7 @@ Create TABLE tasks (
     reward int not null default 1
 );
 
-Create table skill (
+Create table skills (
     id bigserial not null primary key,
     email varchar not null,
     group_skills varchar not null,
